@@ -1,10 +1,5 @@
 import yfinance as yf
 from google.adk.agents import LlmAgent
-from google.adk.models.lite_llm import LiteLlm
-
-
-MODEL = LiteLlm(model="openai/gpt-4o")
-
 
 def get_company_info(ticker: str) -> str:
     """
@@ -144,7 +139,7 @@ def get_financial_metrics(ticker: str) -> str:
 
 data_analyst = LlmAgent(
     name="DataAnalyst",
-    model=MODEL,
+    model="gemini-2.5-flash",
     description="Gathers and analyzes basic stock market data using multiple focused tools",
     instruction="""
     You are a Data Analyst who gathers stock information using 4 specialized tools:

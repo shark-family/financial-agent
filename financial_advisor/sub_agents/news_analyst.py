@@ -1,14 +1,9 @@
 from google.adk.agents import Agent
-from google.adk.models.lite_llm import LiteLlm
 from tools import web_search_tool
-
-
-MODEL = LiteLlm(model="openai/gpt-4o")
-
 
 news_analyst = Agent(
     name="NewsAnalyst",
-    model=MODEL,
+    model="gemini-2.5-flash",
     description="Uses Web Search tools to search and scrape real web content from the web.",
     instruction="""
     You are a News Analyst Specialist who uses web tools to find current information. Your job:
