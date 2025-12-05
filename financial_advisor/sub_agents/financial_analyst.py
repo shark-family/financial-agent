@@ -1,169 +1,46 @@
 import yfinance as yf
-from google.adk.agents import Agent
+from google.adk.agents import LlmAgent
 
-def get_income_statement(ticker: str):
+def get_financial_statements(ticker: str):
     """
-    Retrieves the income statement for comprehensive revenue and profitability analysis.
-
-    This tool fetches detailed income statement data showing a company's financial
-    performance over recent reporting periods, including revenues, expenses, and
-    profit margins at various levels.
-
+    Retrieves key financial statements (Income Statement, Balance Sheet, Cash Flow)
+    to analyze a company's financial health and stability from a job seeker's perspective.
     Args:
-        ticker (str): Stock ticker symbol (e.g., 'AAPL' for Apple Inc.)
-
+        ticker (str): The stock ticker symbol (e.g., 'AAPL').
     Returns:
-        dict: A dictionary containing:
-            - ticker (str): The input ticker symbol
-            - success (bool): True if the operation was successful
-            - income_statement (str): JSON-formatted income statement data including:
-                * Total Revenue
-                * Cost of Revenue
-                * Gross Profit
-                * Operating Expenses
-                * Operating Income
-                * EBITDA
-                * Net Income
-                * Earnings Per Share (EPS)
-
-    Notes:
-        - Data typically covers the last 4 quarters and annual periods
-        - All financial figures are in the company's reporting currency
-        - Useful for analyzing revenue growth, margin trends, and profitability
-
-    Example:
-        >>> get_income_statement('GOOGL')
-        {
-            'ticker': 'GOOGL',
-            'success': True,
-            'income_statement': '{"Total Revenue": {...}, "Net Income": {...}}'
-        }
+        dict: A dictionary containing the JSON-formatted financial statements.
     """
     stock = yf.Ticker(ticker)
-    # return stock.income_stmt.to_json()
+    income_stmt = stock.income_stmt.to_json()
+    balance_sheet = stock.balance_sheet.to_json()
+    cash_flow = stock.cash_flow.to_json()
+    
     return {
         "ticker": ticker,
         "success": True,
-        "income_statement": stock.income_stmt.to_json(),
+        "income_statement": income_stmt,
+        "balance_sheet": balance_sheet,
+        "cash_flow": cash_flow,
     }
 
-
-def get_balance_sheet(ticker: str):
-    """
-    Retrieves the balance sheet for analyzing financial position and capital structure.
-
-    This tool fetches comprehensive balance sheet data showing a company's assets,
-    liabilities, and shareholders' equity at specific points in time, providing
-    insight into financial health and capital efficiency.
-
-    Args:
-        ticker (str): Stock ticker symbol (e.g., 'AAPL' for Apple Inc.)
-
-    Returns:
-        dict: A dictionary containing:
-            - ticker (str): The input ticker symbol
-            - success (bool): True if the operation was successful
-            - balance_sheet (str): JSON-formatted balance sheet data including:
-                * Current Assets (cash, receivables, inventory)
-                * Non-Current Assets (PP&E, intangibles, investments)
-                * Current Liabilities (payables, short-term debt)
-                * Non-Current Liabilities (long-term debt, deferred items)
-                * Total Shareholders' Equity
-                * Working Capital components
-
-    Notes:
-        - Provides snapshot of financial position at quarter/year end
-        - Essential for calculating liquidity ratios (current ratio, quick ratio)
-        - Used to assess debt levels, asset efficiency, and book value
-        - All values in company's reporting currency
-
-    Example:
-        >>> get_balance_sheet('AMZN')
-        {
-            'ticker': 'AMZN',
-            'success': True,
-            'balance_sheet': '{"Total Assets": {...}, "Total Liabilities": {...}}'
-        }
-    """
-    stock = yf.Ticker(ticker)
-    # return stock.balance_sheet.to_json()
-    return {
-        "ticker": ticker,
-        "success": True,
-        "balance_sheet": stock.balance_sheet.to_json(),
-    }
-
-
-def get_cash_flow(ticker: str):
-    """
-    Retrieves the cash flow statement for analyzing cash generation and capital allocation.
-
-    This tool fetches detailed cash flow data showing how a company generates and
-    uses cash across operating, investing, and financing activities, crucial for
-    assessing financial sustainability and growth capacity.
-
-    Args:
-        ticker (str): Stock ticker symbol (e.g., 'AAPL' for Apple Inc.)
-
-    Returns:
-        dict: A dictionary containing:
-            - ticker (str): The input ticker symbol
-            - success (bool): True if the operation was successful
-            - cash_flow (str): JSON-formatted cash flow statement including:
-                * Operating Cash Flow (cash from core business)
-                * Capital Expenditures (CapEx)
-                * Free Cash Flow (Operating CF - CapEx)
-                * Investing Activities (acquisitions, investments)
-                * Financing Activities (debt, dividends, buybacks)
-                * Net Change in Cash
-
-    Notes:
-        - Operating cash flow indicates core business cash generation
-        - Free cash flow shows cash available for shareholders/growth
-        - Negative investing CF often indicates growth investment
-        - Financing CF reveals capital structure decisions
-        - Critical for assessing dividend sustainability and growth funding
-
-    Example:
-        >>> get_cash_flow('META')
-        {
-            'ticker': 'META',
-            'success': True,
-            'cash_flow': '{"Operating Cash Flow": {...}, "Free Cash Flow": {...}}'
-        }
-    """
-    stock = yf.Ticker(ticker)
-    # return stock.balance_sheet.to_json()
-    return {
-        "ticker": ticker,
-        "success": True,
-        "cash_flow": stock.cash_flow.to_json(),
-    }
-
-
-financial_analyst = Agent(
+financial_analyst = LlmAgent(
     name="FinancialAnalyst",
     model="gemini-2.5-flash",
-    description="Analyzes detailed financial statements including income, balance sheet, and cash flow",
+    description="Analyzes a company's financial stability and growth potential based on its financial statements.",
     instruction="""
-    You are a Financial Analyst who performs deep financial statement analysis. Your job:
-    
-    1. **Income Analysis**: Use get_income_statement() to analyze revenue, profitability, and margins
-    2. **Balance Sheet Analysis**: Use get_balance_sheet() to examine assets, liabilities, and financial position
-    3. **Cash Flow Analysis**: Use get_cash_flow() to assess cash generation and capital allocation
-    
-    **Your Financial Tools:**
-    - **get_income_statement(ticker)**: Revenue, profit margins, and profitability analysis
-    - **get_balance_sheet(ticker)**: Assets, debt, equity, and financial strength ratios
-    - **get_cash_flow(ticker)**: Operating cash flow, free cash flow, and capital expenditure
-    
-    Analyze the financial health and performance of companies using comprehensive financial statement data.
-    Focus on key financial ratios, trends, and indicators that reveal the company's financial strength.
+    You are a Financial Analyst focused on **Job Stability and Growth Potential**.
+    Your task is to analyze financial statements to answer: "Is this company financially healthy enough to be a stable employer?" and "Is the company growing?".
+
+    **ANALYSIS POINTS (from a job seeker's view):**
+    1.  **Profitability (수익성)**: Is the company making money? Look at 'Total Revenue' and 'Net Income' trends from the Income Statement.
+    2.  **Cash Flow (현금 흐름)**: Does the company have enough cash to operate? Check for positive 'Operating Cash Flow'. This is crucial for paying salaries.
+    3.  **Growth Trajectory (성장성)**: Is revenue growing year over year? This can indicate a growing company with more opportunities.
+
+    Based on the financial statements, provide a simple, clear summary of the company's financial health from an employment perspective.
+    Categorize it as 'High Stability & Growth', 'Moderate Stability', or 'Potential Financial Risk'.
     """,
     tools=[
-        get_income_statement,
-        get_balance_sheet,
-        get_cash_flow,
+        get_financial_statements,
     ],
     output_key="financial_analyst_result",
 )

@@ -36,6 +36,9 @@ def web_search_tool(query: str):
         url = result["url"]
         markdown = result["markdown"]
 
+        # Truncate the markdown to avoid token limit errors
+        markdown = markdown[:4000]
+
         cleaned = re.sub(r"\\+|\n+", "", markdown).strip()
         cleaned = re.sub(r"\[[^\]]+\]\([^\)]+\)|https?://[^\s]+", "", cleaned)
 
