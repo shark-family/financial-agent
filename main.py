@@ -22,8 +22,15 @@ app: FastAPI = get_fast_api_app(
     web=SERVE_WEB_INTERFACE,
 )
 
-# 로컬 실행용 (Render에서도 Start Command에서 uvicorn으로 이걸 실행할 거야)
+# Render health check
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "CareerCoach API running"}
+
 if __name__ == "__main__":
     import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8080))
+    )
